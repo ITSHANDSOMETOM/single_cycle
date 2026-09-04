@@ -60,11 +60,15 @@ module LSU (
   logic [63:0] shifted_data;
   logic [31:0] aligned_ld_data;
   
-  // Dịch phải khối 64-bit dựa vào offset của byte (nhân 8)
-  assign shifted_data = ld_data_i >> {addr_i[1:0], 3'b000}; 
-  
-  // Cắt lấy 32 bit thấp sau khi căn lề
-  assign aligned_ld_data = shifted_data[31:0];
+  always_comb begin
+    case (addr_i[1:0])
+        2'b00: aligned_ld_data = ld_data_i[31:0];
+        2'b01: aligned_ld_data = ld_data_i[39:8];
+        2'b10: aligned_ld_data = ld_data_i[47:16];
+        2'b11: aligned_ld_data = ld_data_i[55:24];
+        default: aligned_ld_data = 32'b0;
+    endcase
+end
 
   // Format theo funct3 
   always_comb begin
